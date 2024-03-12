@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
 
-const LoginPage = ({ navigation }) => {
+
+const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -17,12 +18,12 @@ const LoginPage = ({ navigation }) => {
     };
 
     const handleSignup = () => {
-        navigation.navigate('SignupPage');
+        navigation.navigate('SignupScreen');
     };
 
     return (
         <ImageBackground
-            source={require('../assets/loginPage_background.jpg')}
+            source={require('../../assets/loginScreen_background.jpg')}
             style={styles.background}
         >
             <View style={styles.overlay}>
@@ -103,4 +104,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default LoginPage;
+export default LoginScreen;

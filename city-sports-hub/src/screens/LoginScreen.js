@@ -1,21 +1,47 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
-
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ImageBackground, Alert } from 'react-native';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { app } from '../../firebase';
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleLogin = () => {
-        // Perform login logic here
-
-        console.log('Email:', email);
-        console.log('Password:', password);
-
-        // Reset the form after login
-        setEmail('');
-        setPassword('');
-    };
+    const handleLogin = async () => {
+        if (!email || !password) {
+            Alert.alert('Error', 'Email and password are required');
+            return;
+        }
+    
+        setLoading(true);
+        const auth = getAuth(app);
+    
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            console.log('User logged in:', userCredential.user.email);
+    
+            // Reset the form after login
+            setEmail('');
+            setPassword('');
+    
+            // Navigate to HomeScreen or any other screen
+            navigation.navigate('HomeScreen');
+        } catch (error) {
+            if (error.code === 'auth/invalid-email') {
+                Alert.alert('Error', 'Invalid email format. Please enter a valid email.');
+            } else if (error.code === 'auth/user-not-found') {
+                Alert.alert('Error', 'User not found. Please check your email.');
+            } else if (error.code === 'auth/invalid-credential') {
+                Alert.alert('Error', 'Invalid password. Please enter the correct password.');
+            } else {
+                console.error('Login failed:', error.message);
+                Alert.alert('Error', 'Login failed. Please try again.');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };    
 
     const handleSignup = () => {
         navigation.navigate('SignupScreen');
@@ -34,6 +60,8 @@ const LoginScreen = ({ navigation }) => {
                         placeholder="Email"
                         value={email}
                         onChangeText={setEmail}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
                     />
                     <TextInput
                         style={styles.input}
@@ -44,8 +72,8 @@ const LoginScreen = ({ navigation }) => {
                     />
 
                     <View style={styles.buttonContainer}>
-                        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                            <Text style={styles.buttonText}>Login</Text>
+                        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+                            <Text style={styles.buttonText}>{loading ? 'Logging in...' : 'Login'}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.button} onPress={handleSignup}>
                             <Text style={styles.buttonText}>Signup</Text>

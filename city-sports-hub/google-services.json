@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "349677966086",
+    "project_id": "sportify-2bafa",
+    "storage_bucket": "sportify-2bafa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:349677966086:android:9cf6f39ebda1c6c2970487",
+        "android_client_info": {
+          "package_name": "city_sports_hub.Sportify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHk29lKBvrUipV665-6wH7Y1MvV2RZTc4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

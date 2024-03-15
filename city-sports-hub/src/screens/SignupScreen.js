@@ -7,7 +7,7 @@ import { updateProfile, sendEmailVerification } from 'firebase/auth';
 
 
 
-const SignupScreen = ({ navigation }) => {
+const SignupScreen = ({ navigation , setUser}) => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -58,7 +58,8 @@ const SignupScreen = ({ navigation }) => {
             setConfirmPassword('');
     
             Alert.alert('Success', 'Signup successful. Please verify your email before logging in.');
-    
+            
+            setUser(user);
             // Navigate to HomeScreen or wherever you want
             navigation.navigate('HomeScreen');
         } catch (error) {

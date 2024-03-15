@@ -7,6 +7,7 @@ import HomeScreen from './src/screens/HomeScreen.js';
 import LoginScreen from './src/screens/LoginScreen.js';
 import SignupScreen from './src/screens/SignupScreen.js';
 import NewsScreen from './src/screens/NewsScreen.js';
+import CreateEventScreen from './src/screens/CreateEventScreen.js';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from './firebase.js';
 
@@ -19,7 +20,6 @@ const App = () => {
   // Handle user state changes
   const onAuthStateChangedHandler = (user) => {
     setUser(user);
-    // console.log('User:', user);
     if (initializing) {
       setInitializing(false);
     }
@@ -44,7 +44,12 @@ const App = () => {
       <Stack.Navigator initialRouteName="WelcomeScreen">
         {
           (user && user.emailVerified) ? (
-            <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
+            <>
+              <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
+              <Stack.Screen name="CreateEventScreen" component={CreateEventScreen} options={{ headerShown: false , user:user}} />
+              <Stack.Screen name="NewsScreen" component={NewsScreen} options={{ headerShown: false }} />
+            </>
+            
           ) : (
             <>
               <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} options={{ headerShown: false }} />

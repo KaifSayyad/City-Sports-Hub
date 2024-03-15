@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useFonts } from 'expo-font';
 
 const SportsNews = () => {
+
     const [newsData, setNewsData] = useState(null);
 
     useEffect(() => {
@@ -17,6 +19,15 @@ const SportsNews = () => {
             console.error(error);
         }
     };
+
+    const [fontsLoaded] = useFonts({
+        'Kalam-Regular': require('../../assets/fonts/Kalam-Regular.ttf'),
+        'Kalam-Bold': require('../../assets/fonts/Kalam-Bold.ttf'),
+      });
+    
+      if (!fontsLoaded) {
+        return <Text>Loading...</Text>;
+      }
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -42,7 +53,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#ecf0f1',
         paddingVertical: 20,
         paddingHorizontal: 10,
-        fontFamily: 'Pacifico-Regular',
+        fontFamily: 'Kalam-Regular',
     },
     card: {
         backgroundColor: '#fff',
@@ -67,12 +78,12 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 5,
-        fontFamily: 'Pacifico-Regular',
+        fontFamily: 'Kalam-Bold',
     },
     description: {
         fontSize: 14,
         color: '#333',
-        fontFamily: 'Pacifico-Regular',
+        fontFamily: 'Kalam-Regular',
     },
 });
 

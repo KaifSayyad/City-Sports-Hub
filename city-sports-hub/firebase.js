@@ -11,6 +11,7 @@ import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCOdXQ7OgTMybDNKHqHVWFSc_6P87xKBYU",
+  
   authDomain: "sportify-d50c8-ee719.firebaseapp.com",
   projectId: "sportify-d50c8",
   storageBucket: "sportify-d50c8.appspot.com",

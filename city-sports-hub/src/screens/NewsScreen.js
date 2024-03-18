@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useFonts } from 'expo-font';
+import FooterNavigation from '../utils/FooterNavigation.js';
 
-const SportsNews = () => {
+const SportsNews = ( { navigation }) => {
 
     const [newsData, setNewsData] = useState(null);
 
@@ -30,20 +31,23 @@ const SportsNews = () => {
       }
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            {newsData && newsData.length > 0 && newsData.map((article, index) => (
-                <TouchableOpacity key={index} style={styles.card}>
-                    <Image
-                        source={{ uri: article.urlToImage }}
-                        style={styles.image}
-                    />
-                    <View style={styles.textContainer}>
-                        <Text style={styles.title}>{article.title}</Text>
-                        <Text style={styles.description}>{article.description}</Text>
-                    </View>
-                </TouchableOpacity>
-            ))}
-        </ScrollView>
+        <>
+            <ScrollView contentContainerStyle={styles.container}>
+                {newsData && newsData.length > 0 && newsData.map((article, index) => (
+                    <TouchableOpacity key={index} style={styles.card}>
+                        <Image
+                            source={{ uri: article.urlToImage }}
+                            style={styles.image}
+                        />
+                        <View style={styles.textContainer}>
+                            <Text style={styles.title}>{article.title}</Text>
+                            <Text style={styles.description}>{article.description}</Text>
+                        </View>
+                    </TouchableOpacity>
+                ))}
+            </ScrollView>
+            <FooterNavigation navigation={navigation} />
+        </>
     );
 };
 

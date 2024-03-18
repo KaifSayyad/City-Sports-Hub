@@ -1,31 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
 import { collection, getDocs } from "firebase/firestore";
 import EventCard from '../utils/EventCard';
 import { firestore } from '../../firebase';
+import FooterNavigation from '../utils/FooterNavigation';
 
 const HomeScreen = ( {navigation} ) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const fetchEvents = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(firestore, "Events"));
+      const updatedEvents = [];
+      querySnapshot.forEach((doc) => {
+        updatedEvents.push(doc.data());
+      });
+      setEvents(updatedEvents);
+      setLoading(false);
+      setRefreshing(false);
+    } catch (e) {
+      console.log(e);
+      setLoading(false);
+      alert("Error fetching events");
+    }
+  };  
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setEvents([]);
+    fetchEvents();
+  }, []);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      try{
-        setEvents([]);
-        const querySnapshot = await getDocs(collection(firestore, "Events"));
-        querySnapshot.forEach((doc) => {
-          events.push(doc.data());
-        });
-        setEvents(events);
-        setLoading(false);
-      }catch(e){
-        console.log(e);
-        setLoading(false);
-        alert("Error fetching events");
-      }
-    };
-
+    setEvents([]);
     fetchEvents();
   }, []);
 
@@ -39,41 +48,21 @@ const HomeScreen = ( {navigation} ) => {
   }
 
 
-  const handleNewsClick = () => {
-    navigation.navigate('NewsScreen');
-  }
-  
-  const handleCreateEventClick = () => {
-    navigation.navigate('CreateEventScreen');
-  }
-
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
+
         {events.map((event, index) => (
           <View key={index}>
             <EventCard event={event} />
           </View>
         ))}
+
       </ScrollView>
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerIcon}>
-          <Icon name="calendar" size={24} color="black" />
-          <Text>Events</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerIcon} onPress={handleCreateEventClick}>
-          <Icon name="plus" size={24} color="black" />
-          <Text>Create Event</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerIcon} onPress={handleNewsClick}>
-          <Icon name="newspaper-o" size={24} color="black" />
-          <Text>News</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerIcon}>
-          <Icon name="user" size={24} color="black" />
-          <Text>Profile</Text>
-        </TouchableOpacity>
-      </View>
+      <FooterNavigation navigation={navigation} />
     </View>
   );
 };

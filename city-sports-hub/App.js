@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, Platform, View , StatusBar} from "react-native";
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import WelcomeScreen from './src/screens/WelcomeScreen.js'; // Rename LandingPage to WelcomeScreen
@@ -8,6 +8,8 @@ import LoginScreen from './src/screens/LoginScreen.js';
 import SignupScreen from './src/screens/SignupScreen.js';
 import NewsScreen from './src/screens/NewsScreen.js';
 import CreateEventScreen from './src/screens/CreateEventScreen.js';
+import ProfileScreen from './src/screens/ProfileScreen.js';
+import RegisteredEventsScreen from './src/screens/RegisteredEventsScreen.js';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from './firebase.js';
 
@@ -46,8 +48,10 @@ const App = () => {
           (user && user.emailVerified) ? (
             <>
               <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="CreateEventScreen" component={CreateEventScreen} options={{ headerShown: false , user:user}} />
+              <Stack.Screen name="CreateEventScreen" component={CreateEventScreen} options={{ headerShown: false}} />
               <Stack.Screen name="NewsScreen" component={NewsScreen} options={{ headerShown: false }} />
+              <Stack.Screen name="ProfileScreen" component={ProfileScreen} options={{ headerShown: false }} />
+              <Stack.Screen name="RegisteredEventsScreen" component={RegisteredEventsScreen} options={{ headerShown: false }} />
             </>
             
           ) : (
@@ -71,5 +75,8 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     alignItems: "center",
     justifyContent: "center",
+    padding: 20,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    backgroundColor: '#f0f0f0',
   },
 });

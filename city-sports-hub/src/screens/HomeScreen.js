@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl , Platform, StatusBar} from 'react-native';
 import { collection, getDocs } from "firebase/firestore";
 import EventCard from '../utils/EventCard';
 import { firestore } from '../../firebase';
@@ -49,6 +49,7 @@ const HomeScreen = ( {navigation} ) => {
 
 
   return (
+    <>
     <View style={styles.container}>
       <ScrollView
         refreshControl={
@@ -57,20 +58,23 @@ const HomeScreen = ( {navigation} ) => {
 
         {events.map((event, index) => (
           <View key={index}>
-            <EventCard event={event} />
+            <EventCard event={event} navigation={navigation} />
           </View>
         ))}
 
       </ScrollView>
-      <FooterNavigation navigation={navigation} />
     </View>
+    <FooterNavigation navigation={navigation} />
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
+    padding:5,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    backgroundColor: '#f0f0f0',
   },
   footer: {
     flexDirection: 'row',

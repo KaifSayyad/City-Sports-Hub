@@ -10,6 +10,8 @@ import NewsScreen from './src/screens/NewsScreen.js';
 import CreateEventScreen from './src/screens/CreateEventScreen.js';
 import ProfileScreen from './src/screens/ProfileScreen.js';
 import RegisteredEventsScreen from './src/screens/RegisteredEventsScreen.js';
+import EventDetailsScreen from './src/screens/EventDetailsScreen.js';
+import MyEventsScreen from './src/screens/MyEventsScreen.js';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from './firebase.js';
 
@@ -52,6 +54,8 @@ const App = () => {
               <Stack.Screen name="NewsScreen" component={NewsScreen} options={{ headerShown: false }} />
               <Stack.Screen name="ProfileScreen" component={ProfileScreen} options={{ headerShown: false }} />
               <Stack.Screen name="RegisteredEventsScreen" component={RegisteredEventsScreen} options={{ headerShown: false }} />
+              <Stack.Screen name="EventDetailsScreen" component={EventDetailsScreen} options={{ headerShown: false }} />
+              <Stack.Screen name="MyEventsScreen" component={MyEventsScreen} options={{ headerShown: false }} />
             </>
             
           ) : (

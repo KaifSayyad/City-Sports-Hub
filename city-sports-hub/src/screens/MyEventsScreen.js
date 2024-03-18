@@ -7,7 +7,8 @@ import { getAuth } from 'firebase/auth';
 import FooterNavigation from '../utils/FooterNavigation';
 import { Ionicons } from '@expo/vector-icons'; 
 
-const RegisteredEventsScreen = ( {navigation} ) => {
+
+const MyEventsScreen = ( {navigation} ) => {
     const auth = getAuth();
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -19,7 +20,7 @@ const RegisteredEventsScreen = ( {navigation} ) => {
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
             const forUpdatingRegisteredEventsId = [];
-            await userSnap.data().RegisteredEvents.map(element => {
+            await userSnap.data().MyEvents.map(element => {
                 forUpdatingRegisteredEventsId.push(element);
             });
             return forUpdatingRegisteredEventsId;
@@ -136,4 +137,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RegisteredEventsScreen;
+export default MyEventsScreen;

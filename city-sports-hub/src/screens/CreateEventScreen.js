@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image, Platform, StatusBar } from 'react-native';
-import { setDoc, doc } from "firebase/firestore";
+import { setDoc, doc , getDoc} from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { firestore } from '../../firebase';
 import { getAuth } from "firebase/auth";
@@ -66,34 +66,53 @@ const CreateEventScreen = ({ navigation }) => {
   const createEvent = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
+    const event_id = generateRandomId();
     setLoading(true);
     try {
-      const base64Image = await convertToBase64(image);
-      await setDoc(doc(firestore, "Events", generateRandomId()), {
-        name,
-        address,
-        date,
-        time,
-        description,
-        price: parseFloat(price),
-        image: base64Image,
-        organizer: user.displayName,
-      });
-      alert('Event added successfully!');
-      setName('');
-      setAddress('');
-      setDate(new Date());
-      setTime(new Date());
-      setDescription('');
-      setPrice('');
-      setImage(null);
+        const base64Image = await convertToBase64(image);
+        await setDoc(doc(firestore, "Events", event_id), {
+            name,
+            address,
+            date,
+            time,
+            description,
+            price: parseFloat(price),
+            image: base64Image,
+            organizer: user.displayName,
+            id: event_id,
+        });
+
+        const userRef = doc(firestore, "Users", user.uid);
+        const userDoc = await getDoc(userRef);
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            if (!userData.MyEvents) {
+                await setDoc(userRef, { MyEvents: [event_id] }, { merge: true });
+            } else {
+                await updateDoc(userRef, {
+                    MyEvents: arrayUnion(event_id)
+                });
+            }
+        } else {
+            throw new Error("User document not found");
+        }
+
+        alert('Event added successfully!');
+        setName('');
+        setAddress('');
+        setDate(new Date());
+        setTime(new Date());
+        setDescription('');
+        setPrice('');
+        setImage(null);
     } catch (error) {
-      console.error('Error adding event:', error);
-      alert('Failed to add event. Please try again.');
+        console.error('Error adding event:', error);
+        alert('Failed to add event. Please try again.');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
   
 
   const handleChoosePhoto = async () => {
@@ -177,10 +196,12 @@ const CreateEventScreen = ({ navigation }) => {
           </View>
           <Text>Description:</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
             onChangeText={setDescription}
             value={description}
             placeholder="Event Description"
+            multiline={true}
+            numberOfLines={4}
           />
           <Text>Price:</Text>
           <TextInput

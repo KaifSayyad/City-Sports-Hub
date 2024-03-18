@@ -1,11 +1,10 @@
 import React, { useState , useEffect} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Platform, StatusBar, Linking } from 'react-native';
 import FooterNavigation from '../utils/FooterNavigation';
 import { ScrollView } from 'react-native-gesture-handler';
 import { firestore } from '../../firebase';
 import { getAuth  } from "firebase/auth";
 import { doc, getDoc} from "firebase/firestore";
-import { Linking } from 'react-native';
 
 const ProfileScreen = ({navigation}) => {
 
@@ -41,13 +40,16 @@ const ProfileScreen = ({navigation}) => {
     }
 
     const handleReferAFriend = () =>{
-        alert('App not yet available for public use.')
+        alert('Sorry! App is not available for public use :)')
     }
 
     const handleRegisteredEvents = () =>{
         navigation.navigate("RegisteredEventsScreen");
     }
-
+    
+    const handleMyEvents = () =>{
+        navigation.navigate("MyEventsScreen");
+    }
     return (
         <>
         <View style={styles.container}>
@@ -66,7 +68,7 @@ const ProfileScreen = ({navigation}) => {
                     <TouchableOpacity style={styles.utilityChild}>
                         <Text>Edit Profile</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.utilityChild}>
+                    <TouchableOpacity style={styles.utilityChild} onPress={handleMyEvents}>
                         <Text>My Events</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.utilityChild} onPress={handleRegisteredEvents}>

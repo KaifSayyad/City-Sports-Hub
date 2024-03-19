@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect , useState} from 'react';
 import { StyleSheet, Text, Platform, View , StatusBar} from "react-native";
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -19,7 +19,7 @@ const App = () => {
   const Stack = createStackNavigator();
   const auth = getAuth(app);
   const [initializing, setInitializing] = React.useState(true);
-  const [user, setUser] = React.useState(null);
+  const [user, setUser] = useState(null);
 
   // Handle user state changes
   const onAuthStateChangedHandler = (user) => {

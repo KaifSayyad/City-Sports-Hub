@@ -82,10 +82,11 @@ const CreateEventScreen = ({ navigation }) => {
             id: event_id,
         });
 
+        console.log(user.uid);
         const userRef = doc(firestore, "Users", user.uid);
         const userDoc = await getDoc(userRef);
         if (userDoc.exists()) {
-            const userData = userDoc.data();
+          const userData = userDoc.data();
             if (!userData.MyEvents) {
                 await setDoc(userRef, { MyEvents: [event_id] }, { merge: true });
             } else {

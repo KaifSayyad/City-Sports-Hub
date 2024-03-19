@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Alert, ActivityIndicator } from 'react-native';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { app, firestore } from '../../firebase'; // Make sure to update the path if necessary
-import { collection, addDoc } from "firebase/firestore"; 
+import { collection, addDoc, setDoc , doc} from "firebase/firestore"; 
 import { updateProfile, sendEmailVerification } from 'firebase/auth';
 
 
 
-const SignupScreen = ({ navigation , setUser}) => {
+const SignupScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -31,7 +31,7 @@ const SignupScreen = ({ navigation , setUser}) => {
             const auth = getAuth(app);
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             console.log('User signed up:', userCredential.user.email);
-    
+            const user = auth.currentUser;
             // Update the user's display name
             await updateProfile(auth.currentUser, {
                 displayName: username,
@@ -42,11 +42,13 @@ const SignupScreen = ({ navigation , setUser}) => {
     
             // Create a new user document in Firestore
             try {
-                const docRef = await addDoc(collection(firestore, "Users"), {
-                  username: username,
-                  email: email,
-                });
-                console.log("Document written with ID: ", docRef.id);
+                console.log(user.uid);
+                // const UserRef = collection(firestore, "Users");
+                await setDoc(doc(firestore, "Users", user.uid), {
+                    username: username,
+                    email: email,
+                  });
+                console.log("Document written with ID: ", user.id);
               } catch (e) {
                 console.error("Error adding document: ", e);
               }
@@ -59,7 +61,6 @@ const SignupScreen = ({ navigation , setUser}) => {
     
             Alert.alert('Success', 'Signup successful. Please verify your email before logging in.');
             
-            setUser(user);
             // Navigate to HomeScreen or wherever you want
             navigation.navigate('HomeScreen');
         } catch (error) {

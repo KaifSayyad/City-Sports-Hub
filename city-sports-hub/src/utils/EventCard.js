@@ -9,7 +9,7 @@ const EventCard = ({navigation, event }) => {
         <Text style={styles.title}>{event.name}</Text>
         <Text>{`Organizer: ${event.organizer || "Unknown"}`}</Text>
         <Text>{`Price: ${event.price}`}</Text>
-        <Text>{`Date & Time: ${new Date(event.date.seconds * 1000).toLocaleString()}`}</Text>
+        <Text>{`Date & Time: ${new Date(event.time * 1000).toLocaleString()}`}</Text>
         <Text>{`Location: ${event.address}`}</Text>
         <Text>{event.description}</Text>
       </TouchableOpacity>

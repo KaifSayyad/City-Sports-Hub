@@ -4,29 +4,13 @@ import { collection, getDocs } from "firebase/firestore";
 import EventCard from '../utils/EventCard';
 import { firestore } from '../../firebase';
 import FooterNavigation from '../utils/FooterNavigation';
+import { endEvent } from 'react-native/Libraries/Performance/Systrace';
 
 const HomeScreen = ( {navigation} ) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = React.useState(false);
-
-  const fetchEvents = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(firestore, "Events"));
-      const updatedEvents = [];
-      querySnapshot.forEach((doc) => {
-        updatedEvents.push(doc.data());
-      });
-      setEvents(updatedEvents);
-      setLoading(false);
-      setRefreshing(false);
-    } catch (e) {
-      console.log(e);
-      setLoading(false);
-      alert("Error fetching events");
-    }
-  };  
-
+  
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     setEvents([]);
@@ -35,6 +19,24 @@ const HomeScreen = ( {navigation} ) => {
 
   useEffect(() => {
     setEvents([]);
+
+    const fetchEvents = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(firestore, "Events"));
+        const updatedEvents = [];
+        await querySnapshot.forEach((doc) => {
+          updatedEvents.push(doc.data());
+        });
+        setEvents(updatedEvents);
+        setLoading(false);
+        setRefreshing(false);
+      } catch (e) {
+        console.log(e);
+        setLoading(false);
+        alert("Error fetching events");
+      }
+    };
+
     fetchEvents();
   }, []);
 
@@ -52,9 +54,8 @@ const HomeScreen = ( {navigation} ) => {
     <>
     <View style={styles.container}>
       <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }>
+        // refreshControl={refreshing} onRefresh={onRefresh}
+        >
 
         {events.map((event, index) => (
           <View key={index}>

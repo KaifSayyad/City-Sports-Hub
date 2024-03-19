@@ -45,6 +45,7 @@ const CreateEventScreen = ({ navigation }) => {
   };
 
   const convertToBase64 = (uri) => {
+    if(uri == null) return;
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.onload = function () {

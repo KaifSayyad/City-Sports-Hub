@@ -50,7 +50,7 @@ const MyEventsScreen = ( {navigation} ) => {
         } catch (e) {
             console.log(e);
             setLoading(false);
-            alert("Error fetching events");
+            alert("You've not created any events :(");
         }
     };      
     
@@ -60,10 +60,9 @@ const MyEventsScreen = ( {navigation} ) => {
         fetchEvents();
     }, []);
     
-    useEffect(async () => {
+    useEffect(() => {
         setEvents([]);
-        await fetchEvents();
-        console.log(events);
+        fetchEvents();
     }, []);
     
   if (loading) {
@@ -72,6 +71,11 @@ const MyEventsScreen = ( {navigation} ) => {
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
+  }
+
+  const handleNoEvents = () => {
+    alert("No events found")
+    navigation.goBack();
   }
 
 
@@ -83,11 +87,17 @@ const MyEventsScreen = ( {navigation} ) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }>
 
-        {events.map((event, index) => (
-          <View key={index}>
-            <EventCard event={event} navigation={navigation} />
-          </View>
-        ))}
+        {
+          (events) ? ( 
+            <>
+            {events && events.map((event, index) => (
+              <View key={index}>
+                <EventCard event={event} navigation={navigation} />
+              </View>
+            ))}
+          </>
+          ) : ( handleNoEvents)
+        }
 
       </ScrollView>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl , Platform, StatusBar} from 'react-native';
-import { collection, getDocs , doc, getDoc} from "firebase/firestore";
+import { doc, getDoc} from "firebase/firestore";
 import EventCard from '../utils/EventCard';
 import { firestore } from '../../firebase';
 import { getAuth } from 'firebase/auth';

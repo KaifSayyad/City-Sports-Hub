@@ -12,6 +12,7 @@ import ProfileScreen from './src/screens/ProfileScreen.js';
 import RegisteredEventsScreen from './src/screens/RegisteredEventsScreen.js';
 import EventDetailsScreen from './src/screens/EventDetailsScreen.js';
 import MyEventsScreen from './src/screens/MyEventsScreen.js';
+import EditProfileScreen from './src/screens/EditProfileScreen.js';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from './firebase.js';
 
@@ -56,12 +57,13 @@ const App = () => {
               <Stack.Screen name="RegisteredEventsScreen" component={RegisteredEventsScreen} options={{ headerShown: false }} />
               <Stack.Screen name="EventDetailsScreen" component={EventDetailsScreen} options={{ headerShown: false }} />
               <Stack.Screen name="MyEventsScreen" component={MyEventsScreen} options={{ headerShown: false }} />
+              <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} options={{ headerShown: true, headerTitle:"Edit Profile"}} />
             </>
             
           ) : (
             <>
               <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
+              <Stack.Screen name="LoginScreen" setUser={setUser} component={LoginScreen} options={{ headerShown: false }} />
               <Stack.Screen name="SignupScreen" component={SignupScreen} options={{ headerShown: false }} />
             </>
           )

@@ -50,6 +50,11 @@ const ProfileScreen = ({navigation}) => {
     const handleMyEvents = () =>{
         navigation.navigate("MyEventsScreen");
     }
+
+    const handleEditProfile = () =>{
+        navigation.navigate("EditProfileScreen");
+    }
+    
     return (
         <>
         <View style={styles.container}>
@@ -65,7 +70,7 @@ const ProfileScreen = ({navigation}) => {
                     </View>
                 </View>
                 <View style={styles.utility}>
-                    <TouchableOpacity style={styles.utilityChild}>
+                    <TouchableOpacity style={styles.utilityChild} onPress={handleEditProfile}>
                         <Text>Edit Profile</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.utilityChild} onPress={handleMyEvents}>

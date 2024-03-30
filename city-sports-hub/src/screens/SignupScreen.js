@@ -2,19 +2,47 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Alert, ActivityIndicator } from 'react-native';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { app, firestore } from '../../firebase'; // Make sure to update the path if necessary
-import { collection, addDoc, setDoc , doc} from "firebase/firestore"; 
+import { setDoc , doc} from "firebase/firestore"; 
 import { updateProfile, sendEmailVerification } from 'firebase/auth';
-
-
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
 const SignupScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
+    const [profilePicture, setProfilePicture] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const handleEditProfilePicture = async () => {
+        const relativePath = '../../assets/profile_picture.jpeg';
+        const absolutePath = resolve(__dirname, relativePath);
+    
+        // Check if the file exists
+        if (!fs.existsSync(absolutePath)) {
+            console.error(`File does not exist at path: ${absolutePath}`);
+            return;
+        }
+    
+        const image_base64 = await convertToBase64(absolutePath);
+        setProfilePicture(image_base64);
+    }
+
+
+    const convertToBase64 = async (filePath) => {
+        try {
+            const data = readFileSync(filePath);
+            return data.toString('base64');
+        } catch (err) {
+            console.error('Error converting file to base64:', err);
+            return null;
+        }
+    }
+    
+
     const handleSignup = async () => {
+        handleEditProfilePicture();
         if (!email || !username || !password || !confirmPassword) {
             Alert.alert('Error', 'All fields are required');
             return;
@@ -47,6 +75,7 @@ const SignupScreen = ({ navigation }) => {
                 await setDoc(doc(firestore, "Users", user.uid), {
                     username: username,
                     email: email,
+                    profilePicture: profilePicture,
                   });
                 console.log("Document written with ID: ", user.id);
               } catch (e) {
@@ -58,7 +87,7 @@ const SignupScreen = ({ navigation }) => {
             setUsername('');
             setPassword('');
             setConfirmPassword('');
-    
+            handleEditProfilePicture();
             Alert.alert('Success', 'Signup successful. Please verify your email before logging in.');
             
             // Navigate to HomeScreen or wherever you want

@@ -34,24 +34,16 @@ const EventDetailsScreen = ({ navigation}) => {
             }
     
             setEvents(eventDoc.data());
-            if (!event.RegisteredUsers) {
-                await setDoc(eventRef, { RegisteredUsers: [auth.currentUser.uid] }, { merge: true });
-            } else {
-                await updateDoc(eventRef, {
-                    RegisteredUsers: arrayUnion(auth.currentUser.uid)
-                });
-            }
+            await updateDoc(eventRef, {
+                RegisteredUsers: arrayUnion(auth.currentUser.uid)
+            });
     
             // Update the User document to add the event ID to the RegisteredEvents array 
-            const userRef = doc(firestore, "Users", auth.currentUser.uid);  
-            const userData = user;
-            if (!userData.RegisteredEvents) {
-                await setDoc(userRef, { RegisteredEvents: [event.id] }, { merge: true });
-            } else {
-                await updateDoc(userRef, {
-                    RegisteredEvents: arrayUnion(event.id)
-                });
-            }
+            const userRef = doc(firestore, "Users", auth.currentUser.uid); 
+            console.log(userRef); 
+            await updateDoc(userRef, {
+                RegisteredEvents: arrayUnion(event.id)
+            });
     
             Alert.alert('Registration', `You have successfully registered for ${event.name}`);
         } catch (error) {

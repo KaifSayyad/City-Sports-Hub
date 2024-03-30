@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ImageBackground, Alert } from 'react-native';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { app } from '../../firebase';
+import * as Updates from 'expo-updates';
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({ navigation , setUser}) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -24,9 +25,13 @@ const LoginScreen = ({ navigation }) => {
             // Reset the form after login
             setEmail('');
             setPassword('');
-    
+            
             // Navigate to HomeScreen or any other screen
+            // setUser(userCredential.user);
+            // console.log(`userCredential.user: ${userCredential.user}`); // userCredential.user: [object Object]
             navigation.navigate('HomeScreen');
+            Updates.reloadAsync()
+
         } catch (error) {
             if (error.code === 'auth/invalid-email') {
                 Alert.alert('Error', 'Invalid email format. Please enter a valid email.');

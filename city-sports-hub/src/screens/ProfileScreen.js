@@ -1,5 +1,5 @@
 import React, { useState , useEffect} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Platform, StatusBar, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Platform, StatusBar, Linking, RefreshControl } from 'react-native';
 import FooterNavigation from '../utils/FooterNavigation';
 import { ScrollView } from 'react-native-gesture-handler';
 import { firestore } from '../../firebase';
@@ -10,24 +10,34 @@ const ProfileScreen = ({navigation}) => {
 
     const auth = getAuth();
     const [user, setUser] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         const userId = auth.currentUser.uid;
-            try{
-                const fetchUser = async () => {
-                    const userRef = doc(firestore, "Users", userId);
-                    const userSnap = await getDoc(userRef);
-                    if (userSnap.exists()) {
-                        setUser(userSnap.data());
-                    } else {
-                        console.log("No such document!");
-                    }
-                }
-                fetchUser();
-            }catch(e){
-                console.log(e);
-            }
+        fetchUserData(userId);
     }, []);
+
+    const fetchUserData = async (userId) => {
+        try{
+            const userRef = doc(firestore, "Users", userId);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+                setUser(userSnap.data());
+            } else {
+                console.log("No such document!");
+            }
+        }catch(e){
+            console.log(e);
+        }
+    };
+
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        setTimeout(() => {
+          setRefreshing(false);
+        }, 2000);
+      }, []);
+
 
     const handleSignOut = () =>{
         auth.signOut();
@@ -58,7 +68,12 @@ const ProfileScreen = ({navigation}) => {
     return (
         <>
         <View style={styles.container}>
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
+
                 <View style={styles.userCard}>
                     <View style={styles.profilePicture}>
                     <Image source={{ uri: user.profilePicture }} style={styles.image} />
@@ -66,7 +81,7 @@ const ProfileScreen = ({navigation}) => {
                     <View style={styles.userStatus}>
                         <Text>{user.username}</Text>
                         <Text>{user.email}</Text>
-                        <Text>{user.contact}</Text>
+                        <Text>{user.contactNumber}</Text>
                     </View>
                 </View>
                 <View style={styles.utility}>
@@ -90,6 +105,7 @@ const ProfileScreen = ({navigation}) => {
                     </TouchableOpacity>
                 </View>
             </ScrollView>
+            <View style={{padding:50}} />
         </View>
         <FooterNavigation navigation={navigation} />
         </>

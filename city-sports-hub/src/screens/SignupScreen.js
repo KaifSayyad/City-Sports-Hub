@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Alert, ActivityIndicator, Image } from 'react-native';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { app, firestore } from '../../firebase'; // Make sure to update the path if necessary
 import { setDoc , doc} from "firebase/firestore"; 
 import { updateProfile, sendEmailVerification } from 'firebase/auth';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
 
 const SignupScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
@@ -16,29 +14,37 @@ const SignupScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
 
     const handleEditProfilePicture = async () => {
-        const relativePath = '../../assets/profile_picture.jpeg';
-        const absolutePath = resolve(__dirname, relativePath);
+        const imagePath = '../../assets/profile_picture.jpeg';
+        const imageUri = Image.resolveAssetSource(require(imagePath)).uri;
     
-        // Check if the file exists
-        if (!fs.existsSync(absolutePath)) {
-            console.error(`File does not exist at path: ${absolutePath}`);
-            return;
-        }
-    
-        const image_base64 = await convertToBase64(absolutePath);
-        setProfilePicture(image_base64);
-    }
-
-
-    const convertToBase64 = async (filePath) => {
         try {
-            const data = readFileSync(filePath);
-            return data.toString('base64');
-        } catch (err) {
-            console.error('Error converting file to base64:', err);
-            return null;
+            const image_base64 = await convertToBase64(imageUri);
+            setProfilePicture(image_base64);
+        } catch (error) {
+            console.error('Error converting image to base64:', error);
         }
-    }
+    };
+
+
+    const convertToBase64 = (uri) => {
+        if(uri == null) return;
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.onload = function () {
+            const reader = new FileReader();
+            reader.onloadend = function () {
+              resolve(reader.result);
+            };
+            reader.readAsDataURL(xhr.response);
+          };
+          xhr.onerror = function (error) {
+            reject(error);
+          };
+          xhr.responseType = 'blob';
+          xhr.open('GET', uri, true);
+          xhr.send(null);
+        });
+      };
     
 
     const handleSignup = async () => {

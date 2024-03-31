@@ -1,52 +1,65 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet , Platform, StatusBar, TextInput, Button, Image} from 'react-native';
-import { firestore } from '../../firebase';
-import { setDoc, doc , getDoc} from "firebase/firestore";
+import { View, StyleSheet, Platform, StatusBar, TextInput, Button, Image, Modal, TouchableOpacity, Text } from 'react-native';
 import { getAuth } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { ScrollView } from 'react-native-gesture-handler';
-import * as ImagePicker from "expo-image-picker";
-
-
-
+import { Avatar, Divider, Provider } from 'react-native-paper';
+import * as ImagePicker from 'expo-image-picker';
+import { firestore } from '../../firebase';
 
 const EditProfileScreen = () => {
     const auth = getAuth();
     const [email, setEmail] = useState('');
     const [contactNumber, setContactNumber] = useState('');
-    const [profilePicture, setProfilePicture] = useState('');
+    const [originalContactNumber, setOriginalContactNumber] = useState('');
+    const [profilePicture, setProfilePicture] = useState(null);
     const [username, setUsername] = useState('');
+    const [isMenuVisible, setIsMenuVisible] = useState(false);
 
-    const handleEmailChange = (text) => {
-        setEmail(text);
-    };
-
-    const handleContactNumberChange = (text) => {
-        setContactNumber(text);
-    };
-
-    const handleProfilePictureChange = (text) => {
-        setProfilePicture(text);
-    };
-
-    const handleUsernameChange = (text) => {
-        setUsername(text);
-    };
-
-    useEffect (() => {
+    useEffect(() => {
         const currentUser = auth.currentUser;
 
         const loadInitialData = async () => {
-            const UserSnapshot =  await doc(firestore, "Users", currentUser.uid);
-            const doc = await getDoc(UserSnapshot);
-            const data = doc.data();
-            setEmail(data.email);
-            setUsername(data.username);
+            const userRef = await doc(firestore, "Users", currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            const userData = userSnap.data();
+            setEmail(userData.email);
+            setContactNumber(userData.contactNumber);
+            setOriginalContactNumber(userData.contactNumber);
+            setUsername(userData.username);
+            setProfilePicture(userData.profilePicture);
         }
 
         loadInitialData();
-        console.log(email);
-        console.log(username);
     }, []);
+
+    const handleChoosePhoto = async () => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            alert('Sorry, we need camera roll permissions to make this work!');
+            return;
+        }
+        const options = {
+            mediaType: 'photo',
+            includeBase64: false,
+            maxHeight: 2000,
+            maxWidth: 2000,
+        };
+        try {
+            const result = await ImagePicker.launchImageLibraryAsync(options);
+            if (!result.cancelled) {
+                setProfilePicture(result.assets[0].uri);
+                setIsMenuVisible(false); // Close the menu after selecting an image
+            }
+        } catch (error) {
+            console.error('Error choosing photo:', error);
+        }
+    };
+
+    const removeProfilePicture = () => {
+        setProfilePicture(null);
+        setIsMenuVisible(false); // Close the menu after removing the profile picture
+    };
 
     const convertToBase64 = (uri) => {
         if(uri == null) return;
@@ -68,75 +81,84 @@ const EditProfileScreen = () => {
         });
       };
 
-    const saveChanges = () => {
-        const userId = firebase.auth().currentUser.uid;
-        const userRef = firebase.firestore().collection('Users').doc(userId);
-        const profilePicture_base64 = convertToBase64(profilePicture.uri);
-        userRef.update({
-            email: email,
-            contactNumber: contactNumber,
-            profilePicture: profilePicture_base64,
-            username: username,
-        }).then(() => {
-            console.log('Document successfully updated');
-        }).catch((error) => {
-            console.error('Error updating document: ', error);
-        });
-    };
+    const saveChanges = async () => {
+        const userId = auth.currentUser.uid;
+        const userRef = doc(firestore, 'Users', userId);
+        const profilePictureBase64 = await convertToBase64(profilePicture); // Convert the image to base64
 
-    // return (
-    //     <>
-    //         <View style={styles.container}>
-    //             <ScrollView>
-    //                 <Text>Edit Profile</Text>
-    //                 <Text>Profile Picture</Text>
-    //                 <TextInput
-    //                     style={styles.input}
-    //                     onChangeText={handleProfilePictureChange}
-    //                     value={profilePicture}
-    //                     placeholder="Profile Picture"
-    //                 />
-    //                 <Text>Email</Text>
-    //                 <TextInput
-    //                     style={styles.input}
-    //                     onChangeText={handleEmailChange}
-    //                     value={email}
-    //                     placeholder="Email"
-    //                     keyboardType="email-address"
-    //                 />
-    //                 <Text>Contact Number</Text>
-    //                 <TextInput
-    //                     style={styles.input}
-    //                     onChangeText={handleContactNumberChange}
-    //                     value={contactNumber}
-    //                     placeholder="Contact Number"
-    //                     keyboardType="phone-pad"
-    //                 />
-    //                 <Text>Username</Text>
-    //                 <TextInput
-    //                     style={styles.input}
-    //                     onChangeText={handleUsernameChange}
-    //                     value={username}
-    //                     placeholder="Username"
-    //                 />
-    //                 <Button title="Save" onPress={saveChanges} />
-    //             </ScrollView>
-    //         </View>
-    //     </>
-    // );
+        const updatedData = {
+            email: email || '', // Assuming email is a string
+            contactNumber: contactNumber || 0, // Assuming contactNumber is a number
+            profilePicture: profilePictureBase64 || '', // Assuming profilePicture is a string
+            username: username || '', // Assuming username is a string
+        };
+
+        try {
+            await setDoc(userRef, updatedData, { merge: true });
+            alert('Profile updated successfully!')
+        } catch (error) {
+            console.error('Error updating document:', error);
+            alert('An error occurred while updating your profile. Please try again later.');
+        }
+    };
+    
+    
+    
+
     return (
-        <>
+        <Provider>
             <View style={styles.container}>
                 <ScrollView>
-                    <Image src={profilePicture} style={{width: 200, height: 200}} />
-                    
+                    <TouchableOpacity onPress={() => setIsMenuVisible(true)}>
+                        <Avatar.Image
+                            size={150}
+                            source={profilePicture ? { uri: profilePicture } : null}
+                            style={{ backgroundColor: 'gray' }}
+                        />
+                    </TouchableOpacity>
+                    <Modal
+                        visible={isMenuVisible}
+                        transparent={true}
+                        animationType='slide'
+                        onRequestClose={() => setIsMenuVisible(false)}
+                    >
+                        <View style={styles.modalContainer}>
+                            <View style={styles.modalContent}>
+                                <TouchableOpacity onPress={removeProfilePicture}>
+                                    <Text style={styles.menuItem}>Remove</Text>
+                                </TouchableOpacity>
+                                <Divider />
+                                <TouchableOpacity onPress={handleChoosePhoto}>
+                                    <Text style={styles.menuItem}>Update</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
+                    <TextInput
+                        style={styles.input}
+                        value={email}
+                        placeholder="Email"
+                        editable={false}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        value={contactNumber}
+                        placeholder="Contact Number"
+                        keyboardType="phone-pad"
+                        onChangeText={setContactNumber}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        value={username}
+                        placeholder="Username"
+                        onChangeText={setUsername}
+                    />
                     <Button title="Save" onPress={saveChanges} />
                 </ScrollView>
             </View>
-        </>
+        </Provider>
     );
 };
-
 
 const styles = StyleSheet.create({
     container: {
@@ -145,7 +167,29 @@ const styles = StyleSheet.create({
         paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
         backgroundColor: '#f0f0f0',
     },
-
+    input: {
+        backgroundColor: 'white',
+        marginBottom: 10,
+        padding: 10,
+        borderRadius: 5,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+        alignItems: 'center',
+    },
+    menuItem: {
+        padding: 10,
+        fontSize: 18,
+    },
 });
 
 export default EditProfileScreen;

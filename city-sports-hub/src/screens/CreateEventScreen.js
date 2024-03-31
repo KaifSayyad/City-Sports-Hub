@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Image, Platform, StatusBar } from 'react-native';
-import { setDoc, doc , getDoc} from "firebase/firestore";
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, ImageBackground, Platform, StatusBar , Image} from 'react-native';
+import { setDoc, doc, getDoc } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { firestore } from '../../firebase';
 import { getAuth } from "firebase/auth";
 import { ScrollView } from 'react-native-gesture-handler';
 import FooterNavigation from '../utils/FooterNavigation';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
 
 const CreateEventScreen = ({ navigation }) => {
   const [name, setName] = useState('');
@@ -25,27 +24,29 @@ const CreateEventScreen = ({ navigation }) => {
   minimumDate.setDate(minimumDate.getDate() + 1); // Set to tomorrow
   minimumDate.setHours(0, 0, 0, 0); // Set time to midnight
 
-
   const onChangeDate = (selectedDate) => {
     setDatePickerVisible(false);
     const newDate = new Date(selectedDate.nativeEvent.timestamp);
-    setDate((newDate || date));
+    setDate(newDate || date);
   };
+
   const onChangeTime = (selectedTime) => {
     setTimePickerVisible(false);
     const newDate = new Date(selectedTime.nativeEvent.timestamp);
-    setTime((newDate || time));
+    setTime(newDate || time);
   };
 
   const showDatepicker = () => {
     setDatePickerVisible(true);
   };
+
   const showTimepicker = () => {
     setTimePickerVisible(true);
   };
 
+  // Function to convert image to base64
   const convertToBase64 = (uri) => {
-    if(uri == null) return;
+    if (uri == null) return;
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.onload = function () {
@@ -70,52 +71,50 @@ const CreateEventScreen = ({ navigation }) => {
     const event_id = generateRandomId();
     setLoading(true);
     try {
-        const base64Image = await convertToBase64(image);
-        await setDoc(doc(firestore, "Events", event_id), {
-            name,
-            address,
-            date,
-            time,
-            description,
-            price: parseFloat(price),
-            image: base64Image,
-            organizer: user.displayName,
-            id: event_id,
-        });
+      const base64Image = await convertToBase64(image);
+      await setDoc(doc(firestore, "Events", event_id), {
+        name,
+        address,
+        date,
+        time,
+        description,
+        price: parseFloat(price),
+        image: base64Image,
+        organizer: user.displayName,
+        id: event_id,
+      });
 
-        console.log(user.uid);
-        const userRef = doc(firestore, "Users", user.uid);
-        const userDoc = await getDoc(userRef);
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-            if (!userData.MyEvents) {
-                await setDoc(userRef, { MyEvents: [event_id] }, { merge: true });
-            } else {
-                await updateDoc(userRef, {
-                    MyEvents: arrayUnion(event_id)
-                });
-            }
+      console.log(user.uid);
+      const userRef = doc(firestore, "Users", user.uid);
+      const userDoc = await getDoc(userRef);
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        if (!userData.MyEvents) {
+          await setDoc(userRef, { MyEvents: [event_id] }, { merge: true });
         } else {
-            throw new Error("User document not found");
+          await updateDoc(userRef, {
+            MyEvents: arrayUnion(event_id)
+          });
         }
+      } else {
+        throw new Error("User document not found");
+      }
 
-        alert('Event added successfully!');
-        setName('');
-        setAddress('');
-        setDate(new Date());
-        setTime(new Date());
-        setDescription('');
-        setPrice('');
-        setImage(null);
+      alert('Event added successfully!');
+      setName('');
+      setAddress('');
+      setDate(new Date());
+      setTime(new Date());
+      setDescription('');
+      setPrice('');
+      setImage(null);
     } catch (error) {
-        console.error('Error adding event:', error);
-        alert('Failed to add event. Please try again.');
+      console.error('Error adding event:', error);
+      alert('Failed to add event. Please try again.');
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
-
-  
+  };
 
   const handleChoosePhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -151,80 +150,80 @@ const CreateEventScreen = ({ navigation }) => {
   };
 
   return (
-    <>
+    <ImageBackground source={require('../../assets/createEventScreen_background.jpg')} style={styles.backgroundImage}>
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <StatusBar translucent backgroundColor="transparent" />
-          <Text>Name:</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={setName}
-            value={name}
-            placeholder="Event Name"
-          />
-          <Text>Address:</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={setAddress}
-            value={address}
-            placeholder="Event Address"
-          />
-          <Button onPress={showDatepicker} title="Select Date" />
-          <View>
-            {isDatePickerVisible && (
-              <DateTimePicker
-                value={new Date()}
-                mode="date"
-                is24Hour={true}
-                minimumDate={minimumDate}
-                display='inline'
-                onChange={onChangeDate}
-              />
-            )}
-          {date && <Text style={styles.input}>{date.toDateString()}</Text>}
-          </View>
-          <Button onPress={showTimepicker} title="Select Time" />
-          <View>
-            {isTimePickerVisible && (
-              <DateTimePicker
-                value={new Date()}
-                mode="time"
-                is24Hour={false}
-                display='inline'
-                onChange={onChangeTime}
-              />
-            )}
-          {time && <Text style={styles.input}>{time.toTimeString().slice(0,9)}</Text>}
-          </View>
-          <Text>Description:</Text>
-          <TextInput
-            style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
-            onChangeText={setDescription}
-            value={description}
-            placeholder="Event Description"
-            multiline={true}
-            numberOfLines={4}
-          />
-          <Text>Price:</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={setPrice}
-            value={price}
-            placeholder="Event Price"
-            keyboardType="numeric"
-          />
-          <Text>Image:</Text>
-          <TouchableOpacity style={styles.button} onPress={handleChoosePhoto}>
-            <Text>Choose Image</Text>
-          </TouchableOpacity>
-          {image && <Image source={{ uri: image.uri }} style={styles.imagePreview} />}
-          <Button title="Add Event" onPress={createEvent} disabled={loading} />
-          <View style={{ height: 50 }} />
+            <TextInput
+              style={styles.input}
+              onChangeText={setName}
+              value={name}
+              placeholder="Event Name"
+            />
+            <Button title="Choose Address from Map" onPress={() => navigation.navigate('SelectAddressMapScreen', { setAddress })} />
+            <TextInput
+              style={styles.input}
+              onChangeText={setAddress}
+              value={address}
+              placeholder="Event Address"
+            />
+            <Button onPress={showDatepicker} title="Select Date" />
+            <View>
+              {isDatePickerVisible && (
+                <DateTimePicker
+                  value={new Date()}
+                  mode="date"
+                  is24Hour={true}
+                  minimumDate={minimumDate}
+                  display='inline'
+                  onChange={onChangeDate}
+                />
+              )}
+              {date && <Text style={styles.input}>{date.toDateString()}</Text>}
+            </View>
+            <Button onPress={showTimepicker} title="Select Time" />
+            <View>
+              {isTimePickerVisible && (
+                <DateTimePicker
+                  value={new Date()}
+                  mode="time"
+                  is24Hour={false}
+                  display='inline'
+                  onChange={onChangeTime}
+                />
+              )}
+              {time && <Text style={styles.input}>{time.toTimeString().slice(0, 9)}</Text>}
+            </View>
+            <TextInput
+              style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
+              onChangeText={setDescription}
+              value={description}
+              placeholder="Event Description"
+              multiline={true}
+              numberOfLines={4}
+            />
+            <View style={styles.buttonContent}>
+            </View>
+            <TextInput
+              style={styles.input}
+              onChangeText={setPrice}
+              value={price}
+              placeholder="Entry Fee"
+              keyboardType="numeric"
+            />
+            <TouchableOpacity style={styles.button} onPress={handleChoosePhoto}>
+            <View style={styles.buttonContent}>
+              <Text style={styles.buttonText}>Choose Image</Text>
+            </View>
+            </TouchableOpacity>
+            {image && <Image source={{ uri: image }} style={styles.imagePreview} />}
+            <Button title="Add Event" onPress={createEvent} disabled={loading} />
+            <View style={{ height: 50 }} />
         </ScrollView>
+      <View style={{ paddingBottom: 100 }} />
       </View>
-      
       <FooterNavigation navigation={navigation} />
-    </>
+    </ImageBackground>
   );
 };
 
@@ -233,7 +232,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)', // Semi-transparent background color for the form
   },
   input: {
     height: 40,
@@ -242,6 +241,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 10,
     backgroundColor: '#fff',
+    borderRadius: 5,
   },
   button: {
     alignItems: 'center',
@@ -249,31 +249,23 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
   },
+  buttonContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   buttonText: {
     color: '#fff',
+    fontSize: 16,
   },
   imagePreview: {
     width: 200,
     height: 200,
     marginBottom: 20,
   },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 10,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    elevation: 8,
-  },
-  footerIcon: {
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 12,
+  backgroundImage: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center',
   },
 });
 

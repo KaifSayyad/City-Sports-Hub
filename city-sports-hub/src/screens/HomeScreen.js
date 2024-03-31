@@ -1,95 +1,80 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl , Platform, StatusBar} from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, ImageBackground, Platform, StatusBar } from 'react-native';
 import { collection, getDocs } from "firebase/firestore";
 import EventCard from '../utils/EventCard';
 import { firestore } from '../../firebase';
 import FooterNavigation from '../utils/FooterNavigation';
-import { endEvent } from 'react-native/Libraries/Performance/Systrace';
 
-const HomeScreen = ( {navigation} ) => {
+const HomeScreen = ({ navigation }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = React.useState(false);
-  
-  const onRefresh = React.useCallback(() => {
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
-    setEvents([]);
     fetchEvents();
   }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(firestore, "Events"));
+      const updatedEvents = [];
+      await querySnapshot.forEach((doc) => {
+        updatedEvents.push(doc.data());
+      });
+      setEvents(updatedEvents);
+      setLoading(false);
+      setRefreshing(false);
+    } catch (e) {
+      console.log(e);
+      setLoading(false);
+      alert("Error fetching events");
+    }
+  };
 
   useEffect(() => {
-    setEvents([]);
-
-    const fetchEvents = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(firestore, "Events"));
-        const updatedEvents = [];
-        await querySnapshot.forEach((doc) => {
-          updatedEvents.push(doc.data());
-        });
-        setEvents(updatedEvents);
-        setLoading(false);
-        setRefreshing(false);
-      } catch (e) {
-        console.log(e);
-        setLoading(false);
-        alert("Error fetching events");
-      }
-    };
-
     fetchEvents();
   }, []);
 
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
-
-
   return (
-    <>
-    <View style={styles.container}>
-      <ScrollView
-        // refreshControl={refreshing} onRefresh={onRefresh}
+    <ImageBackground source={require('../../assets/homeScreen_background.jpg')} style={styles.backgroundImage}>
+      <View style={styles.container}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         >
-
-        {events.map((event, index) => (
-          <View key={index}>
-            <EventCard event={event} navigation={navigation} />
-          </View>
-        ))}
-
-      </ScrollView>
-    </View>
-    <FooterNavigation navigation={navigation} />
-    </>
+          {loading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+          ) : (
+            events.map((event, index) => (
+              <View key={index}>
+                <EventCard event={event} navigation={navigation} />
+              </View>
+            ))
+          )}
+        </ScrollView>
+        <View style={{ paddingBottom: 100 }} />
+      </View>
+      <FooterNavigation navigation={navigation} />
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding:5,
+    padding: 5,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: 'rgba(0,0,0,0.5)', // Semi-transparent background to allow the background image to show through
   },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 10,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  footerIcon: {
-    alignItems: 'center',
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center"
   },
   loadingContainer: {
     flex: 1,

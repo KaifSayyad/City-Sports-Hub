@@ -13,6 +13,8 @@ import RegisteredEventsScreen from './src/screens/RegisteredEventsScreen.js';
 import EventDetailsScreen from './src/screens/EventDetailsScreen.js';
 import MyEventsScreen from './src/screens/MyEventsScreen.js';
 import EditProfileScreen from './src/screens/EditProfileScreen.js';
+import FooterNavigation from './src/utils/FooterNavigation.js';
+import SelectAddressMapScreen from './src/utils/SelectAddressMapScreen.js';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from './firebase.js';
 
@@ -58,6 +60,8 @@ const App = () => {
               <Stack.Screen name="EventDetailsScreen" component={EventDetailsScreen} options={{ headerShown: false }} />
               <Stack.Screen name="MyEventsScreen" component={MyEventsScreen} options={{ headerShown: false }} />
               <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} options={{ headerShown: true, headerTitle:"Edit Profile"}} />
+              <Stack.Screen name="FooterNavigation" component={FooterNavigation} options={{ headerShown: false }} />
+              <Stack.Screen name="SelectAddressMapScreen" component={SelectAddressMapScreen} options={{ headerShown: false }} />
             </>
             
           ) : (

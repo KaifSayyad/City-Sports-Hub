@@ -42,14 +42,14 @@ const RegisteredEventsScreen = ( {navigation} ) => {
                     console.log(`Event with ID ${eventId} does not exist`);
                 }
             }
-            
             setEvents(updatedEvents);
             setLoading(false);
             setRefreshing(false);
         } catch (e) {
             console.log(e);
             setLoading(false);
-            alert("Error fetching events");
+            alert("You've not registered for any events :(");
+            navigation.goBack();
         }
     };      
     

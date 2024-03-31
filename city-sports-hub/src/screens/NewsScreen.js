@@ -15,6 +15,7 @@ const SportsNews = ({ navigation }) => {
       const response = await fetch('https://newsapi.org/v2/top-headlines?country=in&category=sports&apiKey=e951ea41552b48ed813f68e3faf00863');
       const data = await response.json();
       setNewsData(data.articles);
+      console.log(data.articles.length);
     } catch (error) {
       console.error(error);
     }
@@ -34,7 +35,7 @@ const SportsNews = ({ navigation }) => {
   }
 
   return (
-    <ImageBackground source={require('../../assets/createEventScreen_background.jpg')} style={styles.backgroundImage}>
+    <ImageBackground source={require('../../assets/newsScreen_background.jpg')} style={styles.backgroundImage}>
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollView}>
           {newsData && newsData.length > 0 && newsData.map((article, index) => (
@@ -69,7 +70,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Kalam-Regular',
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(230, 247, 255, 0.7)', // Semi-transparent background color for the form
+
     borderRadius: 10,
     marginBottom: 20,
     shadowColor: '#000',

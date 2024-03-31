@@ -162,9 +162,11 @@ const CreateEventScreen = ({ navigation }) => {
             />
             <Button title="Choose Address from Map" onPress={() => navigation.navigate('SelectAddressMapScreen', { setAddress })} />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
               onChangeText={setAddress}
               value={address}
+              multiline={true}
+              numberOfLines={4}
               placeholder="Event Address"
             />
             <Button onPress={showDatepicker} title="Select Date" />

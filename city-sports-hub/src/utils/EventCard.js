@@ -4,6 +4,22 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 const MAX_DESCRIPTION_LENGTH = 100; // Maximum length of the description before truncation
 
 const EventCard = ({ navigation, event }) => {
+
+  const getTime = () => {
+    const timestamp = event.time.toDate(); // Convert Firestore Timestamp to JavaScript Date
+    let hours = timestamp.getHours(); // Extract hours
+    const minutes = timestamp.getMinutes(); // Extract minutes
+    const seconds = timestamp.getSeconds(); // Extract seconds
+    const ampm = hours >= 12 ? 'PM' : 'AM'; // Determine AM or PM
+
+    // Convert hours to 12-hour format
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    const timeString = `${hours}:${minutes}:${seconds} ${ampm}`; // Create the formatted time string
+    // console.log(timeString); // Output: '10:00:00 AM' for example
+    return timeString;
+  };
   
   const truncatedDescription =
     event && event.description && event.description.length > MAX_DESCRIPTION_LENGTH
@@ -19,9 +35,9 @@ const EventCard = ({ navigation, event }) => {
       <Image source={{ uri: event.image }} style={styles.image} />
       <View style={styles.content}>
         <Text style={styles.title}>{event.name}</Text>
-        <Text style={styles.info}>{`Organizer: ${event.organizer || 'Unknown'}`}</Text>
-        <Text style={styles.info}>{`Price: ₹${event.price}`}</Text>
-        <Text style={styles.info}>{`Date & Time: ${new Date(event.time * 1000).toLocaleString()}`}</Text>
+        <Text style={styles.info}>{`By: ${event.organizer || 'Unknown'}`}</Text>
+        <Text style={styles.info}>{`Entry Fee: ₹${event.price}`}</Text>
+        <Text style={styles.info}>{`Date & Time: ${event.time.toDate().toDateString()} ${getTime(event.time)}`}</Text>
         <Text style={styles.info}>{`Location: ${event.address}`}</Text>
         <Text style={styles.description}>{truncatedDescription}</Text>
       </View>
@@ -51,17 +67,20 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   title: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: 'bold',
     marginBottom: 5,
     fontFamily: 'Roboto',
     color: '#333',
+    borderBottomColor: '#000',
+    borderBottomWidth: 1,
   },
   info: {
     fontSize: 16,
     marginBottom: 3,
     fontFamily: 'Roboto',
     color: '#666',
+    
   },
   description: {
     fontSize: 14,

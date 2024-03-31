@@ -20,7 +20,7 @@ const HomeScreen = ({ navigation }) => {
       const querySnapshot = await getDocs(collection(firestore, "Events"));
       const updatedEvents = [];
       await querySnapshot.forEach((doc) => {
-        updatedEvents.push(doc.data());
+        if(doc.data().name != "Demo1") updatedEvents.push(doc.data());
       });
       setEvents(updatedEvents);
       setLoading(false);

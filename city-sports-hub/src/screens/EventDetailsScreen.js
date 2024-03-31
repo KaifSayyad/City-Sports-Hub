@@ -1,13 +1,13 @@
-import React , {useEffect, useState} from 'react';
-import { View, Text, Image, StyleSheet, Platform, StatusBar, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, Platform, StatusBar, ScrollView, TouchableOpacity, Alert, ImageBackground } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from Expo vector-icons
 import FooterNavigation from '../utils/FooterNavigation';
 import { firestore } from '../../firebase';
 import { getAuth } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 
-const EventDetailsScreen = ({ navigation}) => {
+const EventDetailsScreen = ({ navigation }) => {
     const route = useRoute();
     const auth = getAuth();
     const { event } = route.params;
@@ -25,35 +25,35 @@ const EventDetailsScreen = ({ navigation}) => {
                     return;
                 }
             }
-    
+
             // Update the Event document to add the current user's UID to the RegisteredUsers array
             const eventRef = doc(firestore, 'Events', event.id);
             const eventDoc = await getDoc(eventRef);
             if (!eventDoc.exists()) {
                 throw new Error('Event not found');
             }
-    
+
             setEvents(eventDoc.data());
             await updateDoc(eventRef, {
                 RegisteredUsers: arrayUnion(auth.currentUser.uid)
             });
-    
+
             // Update the User document to add the event ID to the RegisteredEvents array 
-            const userRef = doc(firestore, "Users", auth.currentUser.uid); 
-            console.log(userRef); 
+            const userRef = doc(firestore, "Users", auth.currentUser.uid);
+            console.log(userRef);
             await updateDoc(userRef, {
                 RegisteredEvents: arrayUnion(event.id)
             });
-    
+
             Alert.alert('Registration', `You have successfully registered for ${event.name}`);
         } catch (error) {
             console.error('Error registering for event:', error);
             Alert.alert('Registration Failed', 'Failed to register for the event. Please try again.');
         }
     };
-    
+
     return (
-        <>
+        <ImageBackground source={require('../../assets/eventDetailsScreen_background.jpeg')} style={styles.backgroundImage}>
             <View style={styles.container}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                     {event && (
@@ -81,7 +81,7 @@ const EventDetailsScreen = ({ navigation}) => {
                 </TouchableOpacity>
             </View>
             <FooterNavigation navigation={navigation} />
-        </>
+        </ImageBackground>
     );
 };
 
@@ -90,7 +90,8 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-        backgroundColor: '#f0f0f0',
+        backgroundColor: 'rgba(0, 0, 0, 0.3)', // Semi-transparent background color for the form
+        elevation: 10,
     },
     image: {
         width: '100%',
@@ -132,6 +133,11 @@ const styles = StyleSheet.create({
     registerButtonText: {
         color: 'white',
         fontWeight: 'bold',
+    },
+    backgroundImage: {
+        flex: 1,
+        resizeMode: 'cover',
+        justifyContent: 'center',
     },
 });
 

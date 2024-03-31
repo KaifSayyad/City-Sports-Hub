@@ -51,6 +51,7 @@ const MyEventsScreen = ( {navigation} ) => {
             console.log(e);
             setLoading(false);
             alert("You've not created any events :(");
+            navigation.goBack();
         }
     };      
     
@@ -86,14 +87,17 @@ const MyEventsScreen = ( {navigation} ) => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }>
-
+        
         {
           (events) ? ( 
             <>
             {events && events.map((event, index) => (
+              // To add onPress to this EventCard such that it should redirect to EventAnalyticsScreen
+              <TouchableOpacity >
               <View key={index}>
                 <EventCard event={event} navigation={navigation} />
               </View>
+              </TouchableOpacity>
             ))}
           </>
           ) : ( handleNoEvents)

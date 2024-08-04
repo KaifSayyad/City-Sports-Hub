@@ -36,7 +36,7 @@ export default SelectAddressMapScreen = ({ route, navigation }) => {
     // console.log(latitude, longitude);
   };
 
-  Geocoder.init('AIzaSyBuCx7Wwp00Jocd3RmfaXGMAuoADGU80gE');
+  Geocoder.init('**YOUR API KEY**');
 
   const handleMapPress = async (event) => {
     const { latitude, longitude } = event.nativeEvent.coordinate;
